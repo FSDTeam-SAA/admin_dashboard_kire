@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 // --- Types ---
 
@@ -190,9 +191,11 @@ const PaymentHistory: React.FC = () => {
                 </TableCell>
                 <TableCell className="text-right pr-8">
                   <div className="flex justify-end gap-3">
-                    <button className="text-[#00a39e] hover:bg-[#e6f6f4] p-1.5 rounded transition-colors">
-                      <Eye className="w-4 h-4" />
-                    </button>
+                    <Link href={`/payment-history/adadfad`}>
+                      <button className="text-[#00a39e] hover:bg-[#e6f6f4] p-1.5 rounded transition-colors">
+                        <Eye className="w-4 h-4" />
+                      </button>
+                    </Link>
                     <button className="text-red-400 hover:bg-red-50 p-1.5 rounded transition-colors">
                       <Trash2 className="w-4 h-4" />
                     </button>
