@@ -135,9 +135,11 @@ const PaymentHistory: React.FC = () => {
         <h1 className="text-3xl font-serif font-bold text-slate-900">
           Payment History
         </h1>
-        <Button className="bg-[#00a39e] hover:bg-[#008c88] text-white rounded-lg px-6">
-          Add Payment Gateway
-        </Button>
+        <Link href={`/payment-history/add-payment-gateway`}>
+          <Button className="bg-[#00a39e] hover:bg-[#008c88] text-white rounded-lg px-6">
+            Add Payment Gateway
+          </Button>
+        </Link>
       </header>
 
       {/* Stats Summary Grid */}
