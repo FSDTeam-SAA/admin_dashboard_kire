@@ -154,9 +154,11 @@ const SubscriptionPage: React.FC = () => {
                 </TabsTrigger>
               </TabsList>
             </Tabs>
-            <Button className="bg-[#00a39e] hover:bg-[#008c88]">
-              <Plus className="w-4 h-4 mr-1" /> Add Plan
-            </Button>
+            <Link href={`/subscription-promotion/subscription-plan`}>
+              <Button className="bg-[#00a39e] hover:bg-[#008c88]">
+                <Plus className="w-4 h-4 mr-1" /> Add Plan
+              </Button>
+            </Link>
           </div>
         </div>
 
