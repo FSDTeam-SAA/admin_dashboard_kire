@@ -24,7 +24,7 @@ const navigation = [
   { name: "Users Management", href: "/user/wish-list", icon: Heart },
   { name: "Subscription & Promotion", href: "/subscription-promotion", icon: Heart },
   { name: "Commission plan", href: "/commission-plan", icon: Heart },
-  { name: "Payment History", href: "/user/wish-list", icon: Heart },
+  { name: "Payment History", href: "/payment-history", icon: Heart },
   { name: "Settings", href: "/user/setting", icon: Settings },
 ];
 
