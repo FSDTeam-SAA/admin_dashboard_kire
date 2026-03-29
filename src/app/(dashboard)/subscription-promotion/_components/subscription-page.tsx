@@ -9,6 +9,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Link from "next/link";
 
 // --- Type Definitions ---
 
@@ -219,9 +220,11 @@ const SubscriptionPage: React.FC = () => {
       <section>
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-xl font-bold text-slate-900">Promotion</h2>
-          <Button className="bg-[#00a39e] hover:bg-[#008c88]">
-            Add Promotion
-          </Button>
+          <Link href={`/subscription-promotion/promotion-plan`}>
+            <Button className="bg-[#00a39e] hover:bg-[#008c88]">
+              Add Promotion
+            </Button>
+          </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
