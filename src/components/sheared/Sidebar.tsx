@@ -19,9 +19,12 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 const navigation = [
-  { name: "Profile", href: "/user/profile", icon: SendToBack },
-  { name: "My Bookings", href: "/user/bookings", icon: ShoppingBag },
-  { name: "Wish List", href: "/user/wish-list", icon: Heart },
+  { name: "Dashboard Overview", href: "/user/profile", icon: SendToBack },
+  { name: "Businesses Management", href: "/user/bookings", icon: ShoppingBag },
+  { name: "Users Management", href: "/user/wish-list", icon: Heart },
+  { name: "Subscription & Promotion", href: "/user/wish-list", icon: Heart },
+  { name: "Commision plan", href: "/user/wish-list", icon: Heart },
+  { name: "Payment History", href: "/user/wish-list", icon: Heart },
   { name: "Settings", href: "/user/setting", icon: Settings },
 ];
 
