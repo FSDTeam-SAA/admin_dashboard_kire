@@ -1,7 +1,7 @@
 import { BookingChart } from "@/components/home/BookingChart";
 import DashboardStats from "@/components/home/DashboardStats";
+import RecentActivitySection from "@/components/home/RecentActivitySection";
 import { RevenueChart } from "@/components/home/RevenueChart";
-import { UpcomingAppointments } from "@/components/home/UpcomingAppointments";
 
 const page = () => {
   return (
@@ -11,7 +11,7 @@ const page = () => {
         <BookingChart />
         <RevenueChart />
       </div>
-      <UpcomingAppointments />
+      <RecentActivitySection />
     </div>
   );
 };

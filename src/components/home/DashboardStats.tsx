@@ -17,7 +17,7 @@ const stats = [
 
 export default function DashboardStats() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 p-6 bg-[#F8FAFB]">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4  ">
       {stats.map((stat, i) => (
         <Card
           key={i}
