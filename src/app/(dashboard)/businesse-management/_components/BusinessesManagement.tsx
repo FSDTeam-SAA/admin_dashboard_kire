@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
+import Link from "next/link";
 
 const businesses = [
   {
@@ -136,9 +137,14 @@ export default function BusinessesManagement() {
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-center gap-3">
-                    <button className="text-[#169C9F] hover:bg-[#E8F7F7] p-2 rounded-lg transition-colors">
-                      <Eye size={18} />
-                    </button>
+                    <Link
+                      className="cursor-pointer"
+                      href={`/businesse-management/${biz.name.toLowerCase().replace(/\s/g, "-")}`}
+                    >
+                      <button className="text-[#169C9F] hover:bg-[#E8F7F7] p-2 rounded-lg transition-colors">
+                        <Eye size={18} />
+                      </button>
+                    </Link>
                     <button className="text-red-400 hover:bg-red-50 p-2 rounded-lg transition-colors">
                       <Trash2 size={18} />
                     </button>

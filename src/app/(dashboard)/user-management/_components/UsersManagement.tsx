@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
+import Link from "next/link";
 
 const users = [
   {
@@ -197,9 +198,14 @@ export default function UsersManagement() {
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-center">
-                    <button className="text-slate-400 hover:text-[#169C9F] p-2 transition-colors">
-                      <Eye size={18} />
-                    </button>
+                    <Link
+                      className="cursor-pointer"
+                      href={`/user-management/${user.name.toLowerCase().replace(/\s/g, "-")}`}
+                    >
+                      <button className="text-slate-400 hover:text-[#169C9F] p-2 transition-colors">
+                        <Eye size={18} />
+                      </button>
+                    </Link>
                   </div>
                 </TableCell>
               </TableRow>

@@ -19,13 +19,21 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 const navigation = [
-  { name: "Dashboard Overview", href: "/user/profile", icon: SendToBack },
-  { name: "Businesses Management", href: "/user/bookings", icon: ShoppingBag },
-  { name: "Users Management", href: "/user/wish-list", icon: Heart },
-  { name: "Subscription & Promotion", href: "/subscription-promotion", icon: Heart },
+  { name: "Dashboard Overview", href: "/", icon: SendToBack },
+  {
+    name: "Businesses Management",
+    href: "/businesse-management",
+    icon: ShoppingBag,
+  },
+  { name: "Users Management", href: "/user-management", icon: Heart },
+  {
+    name: "Subscription & Promotion",
+    href: "/subscription-promotion",
+    icon: Heart,
+  },
   { name: "Commission plan", href: "/commission-plan", icon: Heart },
   { name: "Payment History", href: "/payment-history", icon: Heart },
-  { name: "Settings", href: "/user/setting", icon: Settings },
+  { name: "Settings", href: "/setting", icon: Settings },
 ];
 
 export default function Sidebar() {
