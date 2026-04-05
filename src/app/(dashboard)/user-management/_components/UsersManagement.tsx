@@ -61,7 +61,7 @@ const updateUserStatus = async ({
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/${id}`,
     {
-      method: "PUT",
+      method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -213,7 +213,7 @@ const UserDetailsModal = ({
             <div>
               <label className="text-xs font-medium text-gray-500">Role</label>
               <p className="text-sm text-gray-900 mt-1 capitalize">
-                {user.role}
+                {user.role === "businessowner" ? "Business Owner" : user.role}
               </p>
             </div>
             <div>
@@ -310,117 +310,10 @@ const UserDetailsModal = ({
   );
 };
 
-// Status Update Modal
-const StatusUpdateModal = ({
-  user,
-  isOpen,
-  onClose,
-  onConfirm,
-  isUpdating,
-}: {
-  user: User | null;
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: (status: string) => void;
-  isUpdating: boolean;
-}) => {
-  const [selectedStatus, setSelectedStatus] = useState(
-    user?.status || "ACTIVE",
-  );
-
-  if (!isOpen || !user) return null;
-
-  const statusOptions = ["ACTIVE", "INACTIVE", "SUSPENDED", "BLOCKED"];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "ACTIVE":
-        return "text-green-600";
-      case "INACTIVE":
-        return "text-yellow-600";
-      case "SUSPENDED":
-        return "text-orange-600";
-      case "BLOCKED":
-        return "text-red-600";
-      default:
-        return "text-gray-600";
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 animate-in fade-in zoom-in duration-200">
-        <div className="flex justify-between items-center p-6 border-b">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Update User Status
-          </h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="p-6">
-          <p className="text-sm text-gray-600 mb-4">
-            User: <span className="font-semibold">{user.fullName}</span>
-          </p>
-          <p className="text-sm text-gray-600 mb-4">
-            Current Status:{" "}
-            <span className={`font-semibold ${getStatusColor(user.status)}`}>
-              {user.status}
-            </span>
-          </p>
-
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            New Status
-          </label>
-          <select
-            value={selectedStatus}
-            onChange={(e) =>
-              setSelectedStatus(
-                e.target.value as
-                  | "ACTIVE"
-                  | "INACTIVE"
-                  | "SUSPENDED"
-                  | "BLOCKED",
-              )
-            }
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-          >
-            {statusOptions.map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex gap-3 justify-end p-6 border-t bg-gray-50">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={() => onConfirm(selectedStatus)}
-            disabled={isUpdating || selectedStatus === user.status}
-            className="px-4 py-2 text-sm font-medium text-white bg-teal-500 rounded-lg hover:bg-teal-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isUpdating ? "Updating..." : "Update Status"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export default function UsersManagement() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
-  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
   const session = useSession();
   const token = session?.data?.user?.accessToken;
   const queryClient = useQueryClient();
@@ -435,8 +328,10 @@ export default function UsersManagement() {
     mutationFn: updateUserStatus,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      setStatusModalOpen(false);
-      setSelectedUser(null);
+      setUpdatingStatusId(null);
+    },
+    onError: () => {
+      setUpdatingStatusId(null);
     },
   });
 
@@ -445,8 +340,8 @@ export default function UsersManagement() {
   // Calculate stats from actual data
   const calculateStats = useMemo(() => {
     const totalUsers = users.length;
-    const pendingApproval = users.filter(
-      (u) => u.role === "businessowner" && u.status === "ACTIVE",
+    const businessOwners = users.filter(
+      (u) => u.role === "businessowner",
     ).length;
     const activeVendors = users.filter(
       (u) => u.role === "businessowner" && u.status === "ACTIVE",
@@ -454,7 +349,7 @@ export default function UsersManagement() {
 
     return {
       totalUsers,
-      pendingApproval,
+      businessOwners,
       activeVendors,
     };
   }, [users]);
@@ -487,6 +382,21 @@ export default function UsersManagement() {
     }
   };
 
+  const getStatusDropdownColor = (status: string) => {
+    switch (status) {
+      case "ACTIVE":
+        return "text-green-600 border-green-300 focus:ring-green-500";
+      case "INACTIVE":
+        return "text-yellow-600 border-yellow-300 focus:ring-yellow-500";
+      case "SUSPENDED":
+        return "text-orange-600 border-orange-300 focus:ring-orange-500";
+      case "BLOCKED":
+        return "text-red-600 border-red-300 focus:ring-red-500";
+      default:
+        return "text-gray-600 border-gray-300 focus:ring-gray-500";
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -500,24 +410,18 @@ export default function UsersManagement() {
     setViewModalOpen(true);
   };
 
-  const handleUpdateStatus = (user: User) => {
-    setSelectedUser(user);
-    setStatusModalOpen(true);
-  };
-
-  const handleStatusUpdate = (newStatus: string) => {
-    if (selectedUser) {
-      updateMutation.mutate({
-        id: selectedUser._id,
-        token: token as string,
-        status: newStatus,
-      });
-    }
+  const handleStatusChange = (userId: string, newStatus: string) => {
+    setUpdatingStatusId(userId);
+    updateMutation.mutate({
+      id: userId,
+      token: token as string,
+      status: newStatus,
+    });
   };
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="p-8 text-center">
           <p className="text-red-500 mb-4">Failed to load users data</p>
           <button
@@ -540,17 +444,6 @@ export default function UsersManagement() {
           setViewModalOpen(false);
           setSelectedUser(null);
         }}
-      />
-
-      <StatusUpdateModal
-        user={selectedUser}
-        isOpen={statusModalOpen}
-        onClose={() => {
-          setStatusModalOpen(false);
-          setSelectedUser(null);
-        }}
-        onConfirm={handleStatusUpdate}
-        isUpdating={updateMutation.isPending}
       />
 
       <div className="min-h-screen bg-gray-50">
@@ -590,7 +483,7 @@ export default function UsersManagement() {
                 </p>
                 <div className="flex items-end justify-between">
                   <p className="text-2xl font-bold text-gray-800">
-                    {calculateStats.pendingApproval}
+                    {calculateStats.businessOwners}
                   </p>
                 </div>
               </Card>
@@ -626,7 +519,7 @@ export default function UsersManagement() {
                         Status
                       </th>
                       <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600">
-                        Actions
+                        Action
                       </th>
                     </tr>
                   </thead>
@@ -676,29 +569,35 @@ export default function UsersManagement() {
                           {formatDate(user.createdAt)}
                         </td>
                         <td className="px-6 py-4">
-                          <span
-                            className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          <select
+                            value={user.status}
+                            onChange={(e) =>
+                              handleStatusChange(user._id, e.target.value)
+                            }
+                            disabled={updatingStatusId === user._id}
+                            className={`px-3 py-1.5 text-xs font-medium rounded-lg border focus:outline-none focus:ring-2 transition-colors ${getStatusDropdownColor(
                               user.status,
-                            )}`}
+                            )} ${updatingStatusId === user._id ? "opacity-50 cursor-not-allowed" : ""}`}
                           >
-                            {user.status}
-                          </span>
+                            <option value="ACTIVE">ACTIVE</option>
+                            <option value="INACTIVE">INACTIVE</option>
+                            <option value="SUSPENDED">SUSPENDED</option>
+                            <option value="BLOCKED">BLOCKED</option>
+                          </select>
+                          {updatingStatusId === user._id && (
+                            <span className="ml-2 text-xs text-gray-400">
+                              Updating...
+                            </span>
+                          )}
                         </td>
                         <td className="px-6 py-4">
-                          <div className="flex items-center justify-center gap-2">
+                          <div className="flex items-center justify-center">
                             <button
                               onClick={() => handleViewUser(user)}
                               className="p-1.5 text-gray-400 hover:text-teal-500 transition-colors"
                               title="View Details"
                             >
                               <Eye size={18} />
-                            </button>
-                            <button
-                              onClick={() => handleUpdateStatus(user)}
-                              className="px-3 py-1 text-xs font-medium text-white bg-teal-500 rounded-md hover:bg-teal-600 transition-colors"
-                              title="Update Status"
-                            >
-                              Update
                             </button>
                           </div>
                         </td>
