@@ -1,26 +1,100 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import {
   Users,
   Calendar,
+  CalendarDays,
   Briefcase,
   LayoutGrid,
-  DollarSign,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
-const stats = [
-  { label: "Customers", value: "128", icon: Users },
-  { label: "Today Bookings", value: "1,482", icon: Calendar },
-  { label: "Businesses", value: "150", icon: Briefcase },
-  { label: "Services", value: "215", icon: LayoutGrid },
-  { label: "Revenue", value: "$42,500", icon: DollarSign },
-];
+interface DashboardOverviewResponse {
+  statusCode: number;
+  message: string;
+  data: {
+    success: boolean;
+    message: string;
+    data: {
+      totalCustomers: number;
+      totalBookings: number;
+      todayBookings: number;
+      totalBusinesses: number;
+      totalServices: number;
+    };
+  };
+}
+
+const fetchDashboardOverview = async (
+  token: string,
+): Promise<DashboardOverviewResponse> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/dashboard/overview`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch dashboard overview");
+  }
+
+  return response.json();
+};
+
+const formatNumber = (value: number) => value.toLocaleString();
 
 export default function DashboardStats() {
+  const session = useSession();
+  const token = session.data?.user?.accessToken;
+
+  const { data } = useQuery({
+    queryKey: ["dashboard-overview"],
+    queryFn: () => fetchDashboardOverview(token as string),
+    enabled: !!token,
+  });
+
+  const overview = data?.data?.data;
+
+  const stats = [
+    {
+      label: "Customers",
+      value: formatNumber(overview?.totalCustomers ?? 0),
+      icon: Users,
+    },
+    {
+      label: "Total Bookings",
+      value: formatNumber(overview?.totalBookings ?? 0),
+      icon: CalendarDays,
+    },
+    {
+      label: "Today Bookings",
+      value: formatNumber(overview?.todayBookings ?? 0),
+      icon: Calendar,
+    },
+    {
+      label: "Businesses",
+      value: formatNumber(overview?.totalBusinesses ?? 0),
+      icon: Briefcase,
+    },
+    {
+      label: "Services",
+      value: formatNumber(overview?.totalServices ?? 0),
+      icon: LayoutGrid,
+    },
+  ];
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4  ">
-      {stats.map((stat, i) => (
+      {stats.map((stat) => (
         <Card
-          key={i}
+          key={stat.label}
           className="p-5 border-none shadow-sm rounded-2xl bg-white flex flex-col gap-4"
         >
           {/* Icon Header */}
