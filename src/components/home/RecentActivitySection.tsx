@@ -1,12 +1,9 @@
+"use client";
+
 import React from "react";
-import {
-  Calendar,
-  UserPlus,
-  CalendarX,
-  Wallet,
-  BarChart2,
-  ChevronRight,
-} from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import { Calendar, UserPlus, CalendarX, Wallet, BarChart2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -53,28 +50,57 @@ const activities = [
   },
 ];
 
-const topBusinesses = [
-  {
-    id: 1,
-    name: "Urban Spa & Wellness",
-    bookings: "48 bookings this week",
-    growth: "+$2.4k",
-  },
-  {
-    id: 2,
-    name: "Glow Barbershop",
-    bookings: "32 bookings this week",
-    growth: "+$1.1k",
-  },
-  {
-    id: 3,
-    name: "Elite Auto Detailing",
-    bookings: "24 bookings this week",
-    growth: "+$0.9k",
-  },
-];
+interface TopBusinessesByPaymentResponse {
+  statusCode: number;
+  message: string;
+  data: {
+    success: boolean;
+    message: string;
+    data: {
+      limit: number;
+      topBusinesses: {
+        totalPayment: number;
+        businessId: string;
+        businessName: string;
+        totalBookings: number;
+      }[];
+    };
+  };
+}
+
+const fetchTopBusinessesByPayment = async (
+  token: string,
+): Promise<TopBusinessesByPaymentResponse> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/dashboard/top-businesses-by-payment`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch top businesses by payment");
+  }
+
+  return response.json();
+};
 
 export default function RecentActivitySection() {
+  const session = useSession();
+  const token = session.data?.user?.accessToken;
+
+  const { data } = useQuery({
+    queryKey: ["top-businesses-by-payment"],
+    queryFn: () => fetchTopBusinessesByPayment(token as string),
+    enabled: !!token,
+  });
+
+  const topBusinesses = data?.data?.data?.topBusinesses ?? [];
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* --- Recent Activity Column (2/3) --- */}
@@ -87,9 +113,9 @@ export default function RecentActivitySection() {
         </div>
 
         <div className="divide-y divide-slate-50">
-          {activities.map((item, i) => (
+          {activities.map((item) => (
             <div
-              key={i}
+              key={`${item.title}-${item.subtitle}`}
               className="p-6 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
             >
               <div className="flex items-center gap-4">
@@ -130,26 +156,41 @@ export default function RecentActivitySection() {
           <h2 className="text-lg font-bold text-slate-900 mb-6">
             Top Businesses
           </h2>
-          <div className="space-y-5">
-            {topBusinesses.map((biz) => (
-              <div key={biz.id} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
-                    {biz.id}
+          {topBusinesses.length ? (
+            <div className="space-y-5">
+              {topBusinesses.map((biz, index) => (
+                <div
+                  key={biz.businessId}
+                  className="flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-xs font-bold text-slate-500">
+                      {index + 1}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-slate-800 leading-none">
+                        {biz.businessName}
+                      </p>
+                      <p className="text-[10px] font-medium text-slate-400 mt-1">
+                        {biz.totalBookings} booking
+                        {biz.totalBookings > 1 ? "s" : ""}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-slate-800 leading-none">
-                      {biz.name}
-                    </p>
-                    <p className="text-[10px] font-medium text-slate-400 mt-1">
-                      {biz.bookings}
-                    </p>
-                  </div>
+                  <p className="text-xs font-bold text-[#169C9F]">
+                    +$
+                    {biz.totalPayment.toLocaleString(undefined, {
+                      maximumFractionDigits: 0,
+                    })}
+                  </p>
                 </div>
-                <p className="text-xs font-bold text-[#169C9F]">{biz.growth}</p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-slate-400 font-medium">
+              No business data found.
+            </p>
+          )}
           <Button className="w-full mt-8 bg-[#169C9F] hover:bg-[#138689] text-white font-bold h-11 rounded-xl">
             Vendor Reports
           </Button>
