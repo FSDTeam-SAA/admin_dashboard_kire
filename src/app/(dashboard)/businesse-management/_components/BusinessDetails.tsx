@@ -388,7 +388,7 @@ export default function BusinessDetails() {
     setIsToggling(true);
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/businesses/${business._id}/activate`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/businesses/${business._id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
