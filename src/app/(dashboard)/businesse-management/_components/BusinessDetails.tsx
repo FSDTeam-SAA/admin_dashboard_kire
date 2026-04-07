@@ -1,43 +1,450 @@
+// "use client";
+
+// import { Mail, Phone, MapPin } from "lucide-react";
+// import { Card } from "@/components/ui/card";
+// import { Button } from "@/components/ui/button";
+// import { Badge } from "@/components/ui/badge";
+// import { Progress } from "@/components/ui/progress";
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import Image from "next/image";
+// import { useParams } from "next/navigation";
+// import { useQuery } from "@tanstack/react-query";
+// import { useSession } from "next-auth/react";
+
+// // --- TypeScript Interfaces ---
+// interface GalleryItem {
+//   url: string;
+//   publicId: string;
+//   uploadedAt: string;
+// }
+
+// interface Schedule {
+//   day: string;
+//   isAvailable: boolean;
+//   from: string;
+//   to: string;
+// }
+
+// interface Service {
+//   _id: string;
+//   serviceName: string;
+//   category: string;
+// }
+
+// interface Staff {
+//   _id: string;
+//   firstName: string;
+//   lastName: string;
+//   email: string;
+//   phoneNumber: string;
+//   serviceIds: Service[];
+//   schedule: Schedule[];
+//   avatar: {
+//     url: string;
+//     publicId: string;
+//     uploadedAt: string;
+//   };
+// }
+
+// interface Owner {
+//   _id: string;
+//   fullName: string;
+//   email: string;
+//   role: string;
+//   avatar?: {
+//     url: string;
+//     publicId: string;
+//     uploadedAt: string;
+//   };
+// }
+
+// interface Business {
+//   _id: string;
+//   businessName: string;
+//   businessEmail: string;
+//   phoneNumber: string;
+//   businessCategory: string;
+//   totalStaff: number;
+//   status: string;
+//   country: string;
+//   city: string;
+//   sector: string;
+//   gallery: GalleryItem[];
+//   description: string;
+//   verification: string;
+//   openingHours: Schedule[];
+//   ownerId: Owner;
+//   staff: Staff[];
+// }
+
+// // --- Component ---
+// export default function BusinessDetails() {
+//   const params = useParams();
+//   const session = useSession();
+//   const token = session.data?.user?.accessToken || "";
+
+//   const { data, isLoading, error } = useQuery<{ data: Business }, Error>({
+//     queryKey: ["single-business", params.id],
+//     queryFn: async () => {
+//       const res = await fetch(
+//         `${process.env.NEXT_PUBLIC_BACKEND_URL}/businesses/${params.id}`,
+//         {
+//           headers: { Authorization: `Bearer ${token}` },
+//         }
+//       );
+//       if (!res.ok) throw new Error("Failed to fetch business");
+//       return res.json();
+//     },
+//   });
+
+//   if (isLoading) return <p>Loading...</p>;
+//   if (error) return <p className="text-red-500">Error loading business</p>;
+
+//   const business = data?.data;
+
+//   return (
+//     <div className="min-h-screen font-sans">
+//       {/* Header Section */}
+//       <div className="flex justify-between items-start mb-8">
+//         <h1 className="text-3xl font-serif font-bold text-[#0D3B3F]">
+//           Business Details
+//         </h1>
+//         <Button
+//           variant="outline"
+//           className="border-[#169C9F] text-[#169C9F] hover:bg-[#E8F7F7] font-bold px-8 h-10 rounded-xl"
+//         >
+//           Block
+//         </Button>
+//       </div>
+
+//       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+//         {/* Left Column */}
+//         <div className="lg:col-span-2 space-y-8">
+//           <Card className="p-8 rounded-[24px] border-slate-100 shadow-sm bg-white">
+//             <h2 className="text-xl font-bold text-slate-800 mb-6">
+//               General Information
+//             </h2>
+
+//             <div className="grid grid-cols-2 gap-y-6 mb-8">
+//               <div>
+//                 <p className="text-sm font-bold text-slate-400 mb-1">
+//                   Business Name
+//                 </p>
+//                 <p className="text-sm font-semibold text-slate-700">
+//                   {business?.businessName}
+//                 </p>
+//               </div>
+//               <div>
+//                 <p className="text-sm font-bold text-slate-400 mb-1">
+//                   Business Category
+//                 </p>
+//                 <p className="text-sm font-semibold text-slate-700">
+//                   {business?.businessCategory}
+//                 </p>
+//               </div>
+//               <div>
+//                 <p className="text-sm font-bold text-slate-400 mb-1">
+//                   Phone Number
+//                 </p>
+//                 <p className="text-sm font-semibold text-slate-700 font-mono">
+//                   {business?.phoneNumber}
+//                 </p>
+//               </div>
+//               <div>
+//                 <p className="text-sm font-bold text-slate-400 mb-1">
+//                   Location
+//                 </p>
+//                 <p className="text-sm font-semibold text-slate-700">
+//                   {business?.city}, {business?.country}
+//                 </p>
+//               </div>
+//             </div>
+
+//             <div className="space-y-3">
+//               <h3 className="text-lg font-bold text-slate-800">
+//                 Business Description
+//               </h3>
+//               <p className="text-sm leading-relaxed text-slate-400 font-medium">
+//                 {business?.description}
+//               </p>
+//             </div>
+//           </Card>
+
+//           {/* Gallery */}
+//           <div className="space-y-4">
+//             <div className="flex justify-between items-end">
+//               <h2 className="text-xl font-bold text-slate-800 font-serif">
+//                 Photo Preview
+//               </h2>
+//               <p className="text-xs font-bold text-slate-400">
+//                 {business?.gallery?.length || 0} images uploaded
+//               </p>
+//             </div>
+
+//             <div className="grid grid-cols-4 gap-4">
+//               {business?.gallery?.map((img, index) => (
+//                 <div
+//                   key={index}
+//                   className={`relative rounded-[16px] overflow-hidden ${
+//                     index === 0 ? "col-span-2 row-span-2" : ""
+//                   }`}
+//                 >
+//                   <Image
+//                     width={index === 0 ? 600 : 200}
+//                     height={index === 0 ? 400 : 200}
+//                     src={img.url}
+//                     alt={`Business image ${index + 1}`}
+//                     className="w-full h-full object-cover"
+//                   />
+//                   {index === 0 && (
+//                     <Badge className="absolute top-4 left-4 bg-[#169C9F] text-white border-none text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-md">
+//                       Cover
+//                     </Badge>
+//                   )}
+//                 </div>
+//               ))}
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Right Column */}
+//         <div className="space-y-8">
+//           <Card className="p-8 rounded-[24px] border-slate-100 shadow-sm bg-white">
+//             <h2 className="text-xl font-bold text-slate-800 mb-6">
+//               Contact Point
+//             </h2>
+
+//             <div className="flex items-center gap-4 mb-8">
+//               <Avatar className="w-14 h-14 ring-2 ring-slate-50">
+//                 <AvatarImage
+//                   src={business?.ownerId?.avatar?.url || "/api/placeholder/60/60"}
+//                 />
+//                 <AvatarFallback>
+//                   {business?.ownerId?.fullName
+//                     ?.split(" ")
+//                     .map((n) => n[0])
+//                     .join("")}
+//                 </AvatarFallback>
+//               </Avatar>
+//               <div>
+//                 <p className="text-lg font-bold text-slate-800 leading-tight">
+//                   {business?.ownerId?.fullName}
+//                 </p>
+//                 <p className="text-xs font-medium text-slate-400">
+//                   {business?.ownerId?.role}
+//                 </p>
+//               </div>
+//             </div>
+
+//             <div className="space-y-6">
+//               <div className="flex items-start gap-3">
+//                 <Mail className="w-5 h-5 text-slate-300 mt-0.5" />
+//                 <div>
+//                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+//                     Email
+//                   </p>
+//                   <p className="text-sm font-semibold text-slate-600">
+//                     {business?.ownerId?.email}
+//                   </p>
+//                 </div>
+//               </div>
+//               <div className="flex items-start gap-3">
+//                 <Phone className="w-5 h-5 text-slate-300 mt-0.5" />
+//                 <div>
+//                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+//                     Phone
+//                   </p>
+//                   <p className="text-sm font-semibold text-slate-600">
+//                     {business?.phoneNumber}
+//                   </p>
+//                 </div>
+//               </div>
+//               <div className="flex items-start gap-3">
+//                 <MapPin className="w-5 h-5 text-slate-300 mt-0.5" />
+//                 <div>
+//                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+//                     Location
+//                   </p>
+//                   <p className="text-sm font-semibold text-slate-600 leading-relaxed">
+//                     {business?.city}, {business?.country}
+//                   </p>
+//                 </div>
+//               </div>
+//             </div>
+//           </Card>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
 "use client";
 
-import { Mail, Phone, MapPin, CheckCircle2, Info } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
+import { useParams } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import { useState } from "react";
 
+// --- TypeScript Interfaces ---
+interface GalleryItem {
+  url: string;
+  publicId: string;
+  uploadedAt: string;
+}
+
+interface Schedule {
+  day: string;
+  isAvailable: boolean;
+  from: string;
+  to: string;
+}
+
+interface Service {
+  _id: string;
+  serviceName: string;
+  category: string;
+}
+
+interface Staff {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  serviceIds: Service[];
+  schedule: Schedule[];
+  avatar: {
+    url: string;
+    publicId: string;
+    uploadedAt: string;
+  };
+}
+
+interface Owner {
+  _id: string;
+  fullName: string;
+  email: string;
+  role: string;
+  avatar?: {
+    url: string;
+    publicId: string;
+    uploadedAt: string;
+  };
+}
+
+interface Business {
+  _id: string;
+  businessName: string;
+  businessEmail: string;
+  phoneNumber: string;
+  businessCategory: string;
+  totalStaff: number;
+  status: "activated" | "blocked";
+  country: string;
+  city: string;
+  sector: string;
+  gallery: GalleryItem[];
+  description: string;
+  verification: string;
+  openingHours: Schedule[];
+  ownerId: Owner;
+  staff: Staff[];
+}
+
+// --- Main Component ---
 export default function BusinessDetails() {
+  const params = useParams();
+  const session = useSession();
+  const queryClient = useQueryClient();
+  const token = session.data?.user?.accessToken || "";
+
+  const { data, isLoading, error } = useQuery<{ data: Business }, Error>({
+    queryKey: ["single-business", params.id],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/businesses/${params.id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      if (!res.ok) throw new Error("Failed to fetch business");
+      return res.json();
+    },
+  });
+
+  const business = data?.data;
+  const [isToggling, setIsToggling] = useState(false);
+
+  // --- Toggle Status Handler ---
+  const handleToggleStatus = async () => {
+    if (!business) return;
+    setIsToggling(true);
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/businesses/${business._id}/activate`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!res.ok) throw new Error("Failed to toggle business status");
+
+      const updatedBusiness = await res.json();
+      queryClient.setQueryData(["single-business", params.id], {
+        data: updatedBusiness.data,
+      });
+    } catch (err) {
+      console.error(err);
+      alert("Error toggling business status");
+    } finally {
+      setIsToggling(false);
+    }
+  };
+
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p className="text-red-500">Error loading business</p>;
+
   return (
-    <div className=" min-h-screen font-sans">
+    <div className="min-h-screen font-sans">
       {/* Header Section */}
       <div className="flex justify-between items-start mb-8">
         <div>
           <h1 className="text-3xl font-serif font-bold text-[#0D3B3F]">
             Business Details
           </h1>
-          <div className="flex items-center gap-2 mt-2">
-            <span className="text-xs font-medium text-slate-400">
-              Application ID:
-            </span>
-            <span className="text-xs font-bold text-slate-600">APP-992841</span>
-            <span className="text-slate-300 mx-1">•</span>
-            <span className="text-xs font-medium text-slate-400">
-              Submitted Oct 24, 2023
-            </span>
-          </div>
         </div>
+
         <Button
-          variant="outline"
-          className="border-[#169C9F] text-[#169C9F] hover:bg-[#E8F7F7] font-bold px-8 h-10 rounded-xl"
+          onClick={handleToggleStatus}
+          disabled={isToggling}
+          variant={business?.status === "activated" ? "outline" : "destructive"}
+          className={`font-bold px-8 h-10 rounded-xl ${
+            business?.status === "activated"
+              ? "border-[#169C9F] text-[#169C9F]"
+              : ""
+          }`}
         >
-          Block
+          {isToggling
+            ? "Processing..."
+            : business?.status === "activated"
+              ? "Block"
+              : "Activate"}
         </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column (2/3) */}
+        {/* Left Column */}
         <div className="lg:col-span-2 space-y-8">
           <Card className="p-8 rounded-[24px] border-slate-100 shadow-sm bg-white">
             <h2 className="text-xl font-bold text-slate-800 mb-6">
@@ -50,7 +457,7 @@ export default function BusinessDetails() {
                   Business Name
                 </p>
                 <p className="text-sm font-semibold text-slate-700">
-                  Lumina Wellness Studio
+                  {business?.businessName}
                 </p>
               </div>
               <div>
@@ -58,7 +465,7 @@ export default function BusinessDetails() {
                   Business Category
                 </p>
                 <p className="text-sm font-semibold text-slate-700">
-                  Wellness, Massage, Facial
+                  {business?.businessCategory}
                 </p>
               </div>
               <div>
@@ -66,7 +473,15 @@ export default function BusinessDetails() {
                   Phone Number
                 </p>
                 <p className="text-sm font-semibold text-slate-700 font-mono">
-                  US-99120-BL
+                  {business?.phoneNumber}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-slate-400 mb-1">
+                  Location
+                </p>
+                <p className="text-sm font-semibold text-slate-700">
+                  {business?.city}, {business?.country}
                 </p>
               </div>
             </div>
@@ -76,64 +491,49 @@ export default function BusinessDetails() {
                 Business Description
               </h3>
               <p className="text-sm leading-relaxed text-slate-400 font-medium">
-                Lumina Wellness Studio is a sanctuary designed to help you
-                disconnect from the chaos of daily life and reconnect with
-                yourself. Founded in 2018, we combine ancient healing traditions
-                with modern wellness technologies to provide a holistic approach
-                to health and beauty. Lumina Wellness Studio is a sanctuary
-                designed to help you disconnect from the chaos of daily life and
-                reconnect with yourself. Founded in 2018, we combine ancient
-                healing traditions with modern wellness technologies to provide
-                a holistic approach to health and beauty.
+                {business?.description}
               </p>
             </div>
           </Card>
 
-          {/* Photo Preview Section */}
+          {/* Gallery */}
           <div className="space-y-4">
             <div className="flex justify-between items-end">
               <h2 className="text-xl font-bold text-slate-800 font-serif">
                 Photo Preview
               </h2>
               <p className="text-xs font-bold text-slate-400">
-                4 images uploaded
+                {business?.gallery?.length || 0} images uploaded
               </p>
             </div>
 
             <div className="grid grid-cols-4 gap-4">
-              {/* Main Large Image */}
-              <div className="col-span-2 row-span-2 relative group overflow-hidden rounded-[20px]">
-                <Image
-                  width={600}
-                  height={400}
-                  src={`/business.png`}
-                  alt="Main view"
-                  className="w-full h-full object-cover"
-                />
-                <Badge className="absolute top-4 left-4 bg-[#169C9F] text-white hover:bg-[#169C9F] border-none text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-md">
-                  Cover
-                </Badge>
-              </div>
-
-              {[1, 2, 3, 4].map((i) => (
+              {business?.gallery?.map((img, index) => (
                 <div
-                  key={i}
-                  className="aspect-square rounded-[16px] overflow-hidden"
+                  key={index}
+                  className={`relative rounded-[16px] overflow-hidden ${
+                    index === 0 ? "col-span-2 row-span-2" : ""
+                  }`}
                 >
                   <Image
-                    width={200}
-                    height={200}
-                    src={`/business.png`}
-                    alt="Gallery"
+                    width={index === 0 ? 600 : 200}
+                    height={index === 0 ? 400 : 200}
+                    src={img.url}
+                    alt={`Business image ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
+                  {index === 0 && (
+                    <Badge className="absolute top-4 left-4 bg-[#169C9F] text-white border-none text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-md">
+                      Cover
+                    </Badge>
+                  )}
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Right Column (1/3) */}
+        {/* Right Column */}
         <div className="space-y-8">
           <Card className="p-8 rounded-[24px] border-slate-100 shadow-sm bg-white">
             <h2 className="text-xl font-bold text-slate-800 mb-6">
@@ -142,15 +542,24 @@ export default function BusinessDetails() {
 
             <div className="flex items-center gap-4 mb-8">
               <Avatar className="w-14 h-14 ring-2 ring-slate-50">
-                <AvatarImage src="/api/placeholder/60/60" />
-                <AvatarFallback>MS</AvatarFallback>
+                <AvatarImage
+                  src={
+                    business?.ownerId?.avatar?.url || "/api/placeholder/60/60"
+                  }
+                />
+                <AvatarFallback>
+                  {business?.ownerId?.fullName
+                    ?.split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </AvatarFallback>
               </Avatar>
               <div>
                 <p className="text-lg font-bold text-slate-800 leading-tight">
-                  Marcus Sterling
+                  {business?.ownerId?.fullName}
                 </p>
                 <p className="text-xs font-medium text-slate-400">
-                  CEO & Founder
+                  {business?.ownerId?.role}
                 </p>
               </div>
             </div>
@@ -163,7 +572,7 @@ export default function BusinessDetails() {
                     Email
                   </p>
                   <p className="text-sm font-semibold text-slate-600">
-                    m.sterling@skylinerentals.com
+                    {business?.ownerId?.email}
                   </p>
                 </div>
               </div>
@@ -174,7 +583,7 @@ export default function BusinessDetails() {
                     Phone
                   </p>
                   <p className="text-sm font-semibold text-slate-600">
-                    +1 (206) 555-0192
+                    {business?.phoneNumber}
                   </p>
                 </div>
               </div>
@@ -185,48 +594,8 @@ export default function BusinessDetails() {
                     Location
                   </p>
                   <p className="text-sm font-semibold text-slate-600 leading-relaxed">
-                    4th Ave, Seattle, WA 98101, USA
+                    {business?.city}, {business?.country}
                   </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Risk Assessment Box */}
-            <div className="mt-10 p-6 rounded-[20px] border border-slate-50 bg-[#FBFDFD]">
-              <div className="flex justify-between items-center mb-4">
-                <p className="text-[11px] font-black text-slate-800 uppercase tracking-widest">
-                  Risk Assessment
-                </p>
-              </div>
-              <div className="flex justify-between items-baseline mb-3">
-                <p className="text-xs font-bold text-slate-500">
-                  Automated Score
-                </p>
-                <p className="text-xl font-black text-[#169C9F]">92/100</p>
-              </div>
-              <Progress
-                value={92}
-                className="h-2.5 bg-slate-100 rounded-full [&>div]:bg-[#169C9F]"
-              />
-
-              <div className="mt-6 space-y-3">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#169C9F]" />
-                  <span className="text-[11px] font-medium text-slate-400">
-                    Business license matches legal entity
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#169C9F]" />
-                  <span className="text-[11px] font-medium text-slate-400">
-                    Contact person identity verified
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Info className="w-4 h-4 text-slate-300" />
-                  <span className="text-[11px] font-medium text-slate-400">
-                    Insurance policy expires in 45 days
-                  </span>
                 </div>
               </div>
             </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import { Eye, Trash2 } from "lucide-react";
 import {
   Table,
@@ -7,59 +9,75 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 
-const businesses = [
-  {
-    name: "Lumina Wellness Studio",
-    owner: "John Doe",
-    sector: "Beauty",
-    city: "New York",
-    amount: "$255",
-    date: "15 May 2020",
-    sectorColor: "bg-pink-100 text-pink-500",
-  },
-  {
-    name: "Zenith Yoga Center",
-    owner: "Jane Smith",
-    sector: "Fitness",
-    city: "Los Angeles",
-    amount: "$120",
-    date: "22 June 2020",
-    sectorColor: "bg-blue-100 text-blue-500",
-  },
-  {
-    name: "Harmony Spa Retreat",
-    owner: "Emily Johnson",
-    sector: "Wellness",
-    city: "Miami",
-    amount: "$300",
-    date: "8 July 2020",
-    sectorColor: "bg-[#E8F7F7] text-[#169C9F]",
-  },
-  // ... add more as per image
-];
+interface Business {
+  _id: string;
+  businessName: string;
+  ownerId: {
+    fullName: string;
+  };
+  sector: string;
+  city: string;
+  createdAt: string;
+  status: string;
+  totalStaff: number;
+}
 
 export default function BusinessesManagement() {
+  const session = useSession();
+  const token = session.data?.user?.accessToken || "";
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["businesses"],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/businesses`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!res.ok) throw new Error("Failed to fetch businesses");
+
+      return res.json();
+    },
+    enabled: !!token,
+  });
+
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>Something went wrong!</p>;
+
+  const businesses: Business[] = data?.data || [];
+
   return (
-    <div className=" min-h-screen">
+    <div className="min-h-screen">
       <header className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900">
           Businesses Management
         </h1>
         <p className="text-xs text-slate-400 font-medium">
-          Review and manage 24 pending registrations for new vendors.
+          Review and manage {businesses.length} business registrations.
         </p>
       </header>
 
       {/* Stat Cards */}
       <div className="grid grid-cols-3 gap-6 mb-8">
         {[
-          { l: "Pending", v: "24" },
-          { l: "Approved Today", v: "125" },
-          { l: "Rejected Today", v: "22" },
+          {
+            l: "Pending",
+            v: businesses.filter((b) => b.status === "pending").length,
+          },
+          {
+            l: "Activated",
+            v: businesses.filter((b) => b.status === "activated").length,
+          },
+          { l: "Total", v: businesses.length },
         ].map((s, i) => (
           <Card key={i} className="p-6 rounded-xl border-slate-100 shadow-sm">
             <p className="text-xs font-medium text-slate-400 mb-2">{s.l}</p>
@@ -72,23 +90,6 @@ export default function BusinessesManagement() {
 
       {/* Table Section */}
       <div className="bg-white rounded-[20px] border border-slate-100 shadow-sm overflow-hidden">
-        <Tabs defaultValue="verification" className="w-full">
-          <TabsList className="bg-transparent border-b border-slate-50 w-full justify-start rounded-none h-14 px-6 gap-8">
-            <TabsTrigger
-              value="verification"
-              className="data-[state=active]:border-b-2 data-[state=active]:border-[#169C9F] data-[state=active]:text-[#169C9F] rounded-none bg-transparent shadow-none font-bold text-xs"
-            >
-              Verification (24)
-            </TabsTrigger>
-            <TabsTrigger
-              value="suspended"
-              className="rounded-none bg-transparent shadow-none font-bold text-xs text-slate-400"
-            >
-              Suspended
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-slate-50">
@@ -98,9 +99,9 @@ export default function BusinessesManagement() {
               <TableHead className="font-bold text-slate-800">Owner</TableHead>
               <TableHead className="font-bold text-slate-800">Sector</TableHead>
               <TableHead className="font-bold text-slate-800">City</TableHead>
-              <TableHead className="font-bold text-slate-800">Amount</TableHead>
+              <TableHead className="font-bold text-slate-800">Staff</TableHead>
               <TableHead className="font-bold text-slate-800">
-                Issue Date
+                Created At
               </TableHead>
               <TableHead className="font-bold text-slate-800 text-center">
                 Action
@@ -108,20 +109,20 @@ export default function BusinessesManagement() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {businesses.map((biz, i) => (
+            {businesses.map((biz) => (
               <TableRow
-                key={i}
+                key={biz._id}
                 className="border-slate-50 hover:bg-slate-50/50"
               >
                 <TableCell className="py-5 px-6 font-semibold text-slate-700">
-                  {biz.name}
+                  {biz.businessName}
                 </TableCell>
                 <TableCell className="text-sm text-slate-600">
-                  {biz.owner}
+                  {biz.ownerId.fullName}
                 </TableCell>
                 <TableCell>
                   <span
-                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tight ${biz.sectorColor}`}
+                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tight bg-[#E8F7F7] text-[#169C9F]`}
                   >
                     {biz.sector}
                   </span>
@@ -130,16 +131,16 @@ export default function BusinessesManagement() {
                   {biz.city}
                 </TableCell>
                 <TableCell className="font-bold text-slate-700">
-                  {biz.amount}
+                  {biz.totalStaff}
                 </TableCell>
                 <TableCell className="text-sm text-slate-500">
-                  {biz.date}
+                  {new Date(biz.createdAt).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
                   <div className="flex justify-center gap-3">
                     <Link
                       className="cursor-pointer"
-                      href={`/businesse-management/${biz.name.toLowerCase().replace(/\s/g, "-")}`}
+                      href={`/businesse-management/${biz._id}`}
                     >
                       <button className="text-[#169C9F] hover:bg-[#E8F7F7] p-2 rounded-lg transition-colors">
                         <Eye size={18} />
