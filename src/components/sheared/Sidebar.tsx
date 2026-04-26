@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 const navigation = [
-  { name: "Dashboard Overview", href: "/", icon: SendToBack },
+  { name: "Dashboard Overview", href: "/dashboard", icon: SendToBack },
   {
     name: "Businesses Management",
     href: "/businesse-management",
