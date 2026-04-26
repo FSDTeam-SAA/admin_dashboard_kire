@@ -13,21 +13,14 @@ import {
 } from "@/components/ui/dialog";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, User2Icon } from "lucide-react";
+import { User2Icon } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
 
 export default function Header() {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
-  const [query, setQuery] = useState("");
 
   const loading = false;
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Searching for:", query);
-    // Add your search logic or routing here (e.g., router.push(`/search?q=${query}`))
-  };
 
   const handleLogout = () => {
     signOut();
@@ -48,7 +41,7 @@ export default function Header() {
 
   return (
     <header className="w-full h-[100px] bg-white shadow-sm border-b px-4 py-3 flex items-center justify-between">
-      <form
+      {/* <form
         onSubmit={handleSearch}
         className="flex w-full max-w-sm h-10 items-stretch"
       >
@@ -65,15 +58,17 @@ export default function Header() {
         >
           <Search size={18} strokeWidth={2.5} />
         </button>
-      </form>
-      <div className="flex items-center gap-4">
-        {/* User Avatar */}
-        <Avatar className="cursor-pointer">
-          <AvatarImage src="/avatar.png" alt="User Avatar" />
-          <AvatarFallback>
-            <User2Icon />
-          </AvatarFallback>
-        </Avatar>
+      </form> */}
+      <div className="w-full flex justify-end">
+        <div className="flex items-center gap-4 ">
+          {/* User Avatar */}
+          <Avatar className="cursor-pointer">
+            <AvatarImage src="/avatar.png" alt="User Avatar" />
+            <AvatarFallback>
+              <User2Icon />
+            </AvatarFallback>
+          </Avatar>
+        </div>
       </div>
 
       {/* Logout Dialog */}
