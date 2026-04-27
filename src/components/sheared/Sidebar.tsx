@@ -71,7 +71,7 @@ export default function Sidebar() {
               : pathname?.startsWith(item.href);
 
           return (
-            <Link
+            <a
               key={item.name}
               href={item.href}
               className={cn(
@@ -83,7 +83,7 @@ export default function Sidebar() {
             >
               <item.icon className="h-5 w-5" />
               {item.name}
-            </Link>
+            </a>
           );
         })}
       </nav>
