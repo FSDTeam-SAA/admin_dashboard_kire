@@ -38,7 +38,7 @@ declare global {
 }
 
 const SOURCE_LANGUAGE = "en";
-const LANGUAGE_STORAGE_KEY = "bookersi-language";
+const LANGUAGE_STORAGE_KEY = "bookersi-language-admin";
 
 const languages = [
   { code: "en", label: "English" },
