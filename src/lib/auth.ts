@@ -74,6 +74,9 @@ export const authOptions: NextAuthOptions = {
 
           // Access the nested data structure
           const loginData = response?.data?.data;
+          if (loginData.user.role !== "admin") {
+            throw new Error("You are not an admin");
+          }
 
           if (!loginData?.user?.id || !loginData?.accessToken) {
             throw new Error("Invalid server response");
