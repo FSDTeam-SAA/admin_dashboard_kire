@@ -449,7 +449,9 @@ const UpdateProfile = () => {
 
                   {/* City */}
                   <div className="space-y-2">
-                    <Label className="text-sm text-gray-600">City</Label>
+                    <Label className="text-sm text-gray-600">
+                      City & street
+                    </Label>
                     <Input
                       name="city"
                       value={formData.city}
